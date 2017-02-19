@@ -1,10 +1,15 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
-require __DIR__ ."config.php";
+require __DIR__ ."/config.php";
+
+$commands_folder = __DIR__ ."/commands/";
 
 try {
     // Create Telegram API object
     $telegram = new Longman\TelegramBot\Telegram($API_KEY, $BOT_NAME);
+
+    // Register commands folder
+    $telegram->addCommandsPath($commands_folder);
 
     // Enable MySQL
     $telegram->enableMySQL($mysql_credentials);
