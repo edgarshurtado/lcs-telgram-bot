@@ -14,41 +14,43 @@ $conn = new PDO(
 
 function getMatchesData($simple_html_dom_object)
 {
-  $matchesResults = [];
+  $matches_results = [];
 
   foreach($simple_html_dom_object->find('.schedule-item') as $game){
-      $blueTeam = getTeamData($game->find(".blue-team", 0));
-      $redTeam = getTeamData($game->find(".red-team", 1));
-      $winner = $blueTeam["result"] == "VICTORY"
-                  ? $blueTeam["acronym"]
-                  : $redTeam["acronym"];
+      $blue_team = getTeamData($game->find(".blue-team", 0));
+      $red_team = getTeamData($game->find(".red-team", 1));
+      $winner = $blue_team["result"] == "VICTORY"
+                  ? $blue_team["acronym"]
+                  : $red_team["acronym"];
 
-      $matchesResults[] = array(
-          "blue-team" => $blueTeam,
-          "red-team" => $redTeam,
+      $matches_results[] = array(
+          "blue-team" => $blue_team,
+          "red-team" => $red_team,
           "winner" => $winner
       );
   }
 
-  return $matchesResults;
+  return $matches_results;
 }
 
-function getTeamData($teamObject){
-   $teamName = $teamObject->find(".team-name", 0)->plaintext;
-   $teamAcronym = $teamObject->find(".team-acronym", 0)->plaintext;
-   $teamResult = $teamObject->find(".defeat", 0);
-   if($teamResult == null){
-    $teamResult = $teamObject->find(".victory", 0);
-   }
-   $teamResult = $teamResult->plaintext;
+function getTeamData($team_object){
+   $team_name = $team_object->find(".team-name", 0)->plaintext;
+   $team_acronym = $team_object->find(".team-acronym", 0)->plaintext;
+   $team_result = $team_object->find(".defeat", 0);
 
-   $teamMatchData = array(
-    "name" => $teamName,
-    "acronym" => $teamAcronym,
-    "result" => $teamResult
+   if(is_null($team_result)){
+    $team_result = $team_object->find(".victory", 0);
+   }
+
+   $team_result = $team_result->plaintext;
+
+   $team_match_data = array(
+    "name" => $team_name,
+    "acronym" => $team_acronym,
+    "result" => $team_result
    );
 
-   return $teamMatchData;
+   return $team_match_data;
 }
 
 function resultAlreadyInDB($conn, $matchResult, $weekNumber)
@@ -90,34 +92,36 @@ function getTeamIdByAcronym($conn, $acronym){
   return $result;
 }
 
-function insertResult($conn, $blueTeamId, $redTeamId, $winnerId, $weekNumber){
+function insertResult(
+  $conn, $blue_team_id, $red_team_id, $winner_id, $week_number
+){
     $stmt = $conn->prepare("
       INSERT INTO lcs_results (team_blue, team_red, winner, week)
-      values (:blueTeamId, :redTeamId, :winnerId, :weekNumber)
+      values (:blue_team_id, :red_team_id, :winner_id, :week_number)
     ");
 
-    $stmt->bindParam(":blueTeamId", $blueTeamId);
-    $stmt->bindParam(":redTeamId", $redTeamId);
-    $stmt->bindParam(":winnerId", $winnerId);
-    $stmt->bindParam(":weekNumber", $weekNumber);
+    $stmt->bindParam(":blue_team_id", $blue_team_id);
+    $stmt->bindParam(":red_team_id", $red_team_id);
+    $stmt->bindParam(":winner_id", $winner_id);
+    $stmt->bindParam(":week_number", $week_number);
 
     $stmt->execute();
 }
 
 $html = file_get_html('page.html');
-$matchesResults = getMatchesData($html);
+$matches_results = getMatchesData($html);
 
-$weekNumber = $html->find("div.current", 0)->plaintext;
-$weekNumber = intval($weekNumber, 10);
+$week_number = $html->find("div.current", 0)->plaintext;
+$week_number = intval($week_number, 10);
 
 
-foreach ($matchesResults as $match) {
+foreach ($matches_results as $match) {
     if(is_null($match["blue-team"]["result"])) continue; // Match not played yet
 
-    if(!resultAlreadyInDB($conn, $match, $weekNumber)){
-      $blueTeamId = getTeamIdByAcronym($conn, $match["blue-team"]["acronym"]);
-      $redTeamId = getTeamIdByAcronym($conn, $match["red-team"]["acronym"]);
-      $winnerId = getTeamIdByAcronym($conn, $match["winner"]);
-      insertResult($conn, $blueTeamId, $redTeamId, $winnerId, $weekNumber);
+    if(!resultAlreadyInDB($conn, $match, $week_number)){
+      $blue_team_id = getTeamIdByAcronym($conn, $match["blue-team"]["acronym"]);
+      $red_team_id = getTeamIdByAcronym($conn, $match["red-team"]["acronym"]);
+      $winner_id = getTeamIdByAcronym($conn, $match["winner"]);
+      insertResult($conn, $blue_team_id, $red_team_id, $winner_id, $week_number);
     }
 }
