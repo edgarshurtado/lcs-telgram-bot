@@ -1,8 +1,16 @@
 <?php
 
 include 'simple_html_dom.php';
+include __DIR__ . "/../config.php";
 
-$conn = new PDO("mysql:dbname=lcs_results_bot;host=127.0.0.1", "root", "");
+$dns = "mysql:dbname=" . $mysql_credentials['database']
+  . ";host=" . $mysql_credentials;
+
+$conn = new PDO(
+  $dsn,
+  $mysql_credentials["user"] ,
+  $mysql_credentials["password"]
+);
 
 function getMatchesData($simple_html_dom_object)
 {
