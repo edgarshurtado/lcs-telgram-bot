@@ -36,7 +36,7 @@ class ResultsCommand extends UserCommand
             JOIN lcs_teams blueTeam on lr.team_blue = blueTeam.id
             JOIN lcs_teams redTeam on lr.team_red = redTeam.id
             JOIN lcs_teams winner on lr.winner = winner.id
-
+            ORDER BY week
         ";
 
         $stmt = $conn->prepare($sql);
@@ -61,6 +61,8 @@ class ResultsCommand extends UserCommand
                 "winner" => $match["winner"]
             ];
         }
+
+        ksort($formatted_array);
 
         foreach ($formatted_array as $week => $matches) {
             $message .= "WEEK $week\n------------\n";
