@@ -4,10 +4,10 @@ include 'simple_html_dom.php';
 include __DIR__ . "/../config.php";
 
 $dns = "mysql:dbname=" . $mysql_credentials['database']
-  . ";host=" . $mysql_credentials;
+  . ";host=" . $mysql_credentials["host"];
 
 $conn = new PDO(
-  $dsn,
+  $dns,
   $mysql_credentials["user"] ,
   $mysql_credentials["password"]
 );
