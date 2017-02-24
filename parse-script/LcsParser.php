@@ -4,10 +4,10 @@ include 'simple_html_dom.php';
 include __DIR__ . "/../config.php";
 
 $dns = "mysql:dbname=" . $mysql_credentials['database']
-  . ";host=" . $mysql_credentials;
+  . ";host=" . $mysql_credentials["host"];
 
 $conn = new PDO(
-  $dsn,
+  $dns,
   $mysql_credentials["user"] ,
   $mysql_credentials["password"]
 );
@@ -111,9 +111,8 @@ function insertResult(
 $html = file_get_html('page.html');
 $matches_results = getMatchesData($html);
 
-$week_number = $html->find("div.current", 0)->plaintext;
+$week_number = $html->find("div.selected", 0)->plaintext;
 $week_number = intval($week_number, 10);
-
 
 foreach ($matches_results as $match) {
     if(is_null($match["blue-team"]["result"])) continue; // Match not played yet
