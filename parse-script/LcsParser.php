@@ -115,12 +115,22 @@ $week_number = $html->find("div.selected", 0)->plaintext;
 $week_number = intval($week_number, 10);
 
 foreach ($matches_results as $match) {
-    if(is_null($match["blue-team"]["result"])) continue; // Match not played yet
 
-    if(!resultAlreadyInDB($conn, $match, $week_number)){
-      $blue_team_id = getTeamIdByAcronym($conn, $match["blue-team"]["acronym"]);
-      $red_team_id = getTeamIdByAcronym($conn, $match["red-team"]["acronym"]);
+    $blue_team_acronym = $match["blue-team"]["acronym"];
+    $red_team_acronym = $match["red-team"]["acronym"];
+
+    if(!is_null($match["blue-team"]["result"])
+        && !resultAlreadyInDB($conn, $match, $week_number)){
+
+      // Get teams Id for DB persistance
+      $blue_team_id = getTeamIdByAcronym($conn, $blue_team_acronym);
+      $red_team_id = getTeamIdByAcronym($conn, $red_team_acronym);
       $winner_id = getTeamIdByAcronym($conn, $match["winner"]);
+
+      // Persist into DB
       insertResult($conn, $blue_team_id, $red_team_id, $winner_id, $week_number);
+      echo "Match $blue_team_acronym Vs. $red_team_acronym added\n";
     }
+
+    echo "Match $blue_team_acronym Vs. $red_team_acronym discarded\n";
 }
