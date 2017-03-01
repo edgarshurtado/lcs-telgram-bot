@@ -24,11 +24,10 @@ function checkArguments(arguments){
 
     var nArguments = arguments.length;
 
-    var argumentIsNaN = isNaN(arguments[1]);
-
-    if((nArguments > 2) || argumentIsNaN){
+    if(nArguments == 1 || ( nArguments == 2 && !isNaN(arguments[1]) )){
+        return true;
+    }else{
         console.log("Invalid argument");
         phantom.exit(1);
     }
-
 }
