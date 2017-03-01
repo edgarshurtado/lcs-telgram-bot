@@ -24,11 +24,12 @@ function checkArguments(arguments){
 
     var nArguments = arguments.length;
 
-    var argumentIsNaN = isNaN(arguments[1]);
-
-    if((nArguments > 2) || argumentIsNaN){
+    // arguments.lengt == 1 means no arguments passed to the script. A value of
+    // 2 means 1 argument has been passed.
+    if(nArguments == 1 || ( nArguments == 2 && !isNaN(arguments[1]) )){
+        return true;
+    }else{
         console.log("Invalid argument");
         phantom.exit(1);
     }
-
 }
