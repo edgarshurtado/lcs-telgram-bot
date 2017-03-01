@@ -24,6 +24,8 @@ function checkArguments(arguments){
 
     var nArguments = arguments.length;
 
+    // arguments.lengt == 1 means no arguments passed to the script. A value of
+    // 2 means 1 argument has been passed.
     if(nArguments == 1 || ( nArguments == 2 && !isNaN(arguments[1]) )){
         return true;
     }else{
