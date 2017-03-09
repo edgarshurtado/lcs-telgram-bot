@@ -17,15 +17,17 @@ class ResultsCommand extends UserCommand
         $data = [];                               // Set up the new message data
         $data['chat_id'] = $chat_id;              // Set Chat ID to send the message to
 
-        $games_results = $this->getResults();
+        $week = $this->getWeekFromMessage($message); // Get week number sent by user
+        $games_results = $this->getResults($week);
 
         $data['text'] = $this->formatMessage($games_results); // Set message to send
 
         return Request::sendMessage($data);       // Send message!
     }
 
-    private function getResults()
+    private function getResults($week)
     {
+        $week_where = !is_null($week) ? "WHERE lr.week = $week" : "";
 
         $conn = new \PDO("mysql:dbname=lcs_results_bot;host=127.0.0.1", "root", "");
 
@@ -36,6 +38,7 @@ class ResultsCommand extends UserCommand
             JOIN lcs_teams blueTeam on lr.team_blue = blueTeam.id
             JOIN lcs_teams redTeam on lr.team_red = redTeam.id
             JOIN lcs_teams winner on lr.winner = winner.id
+            $week_where
             ORDER BY week
         ";
 
@@ -50,6 +53,8 @@ class ResultsCommand extends UserCommand
 
     private function formatMessage($lcs_results_array)
     {
+        if(empty($lcs_results_array)) return "No available data";
+
         $formatted_array = [];
 
         $message = "";
@@ -83,5 +88,26 @@ class ResultsCommand extends UserCommand
         }
 
         return $message;
+    }
+
+    private function getWeekFromMessage($telegram_message_object)
+    {
+
+        $message = $telegram_message_object->getText();
+
+
+        $message_parts = explode(" ", $message );
+
+        $size_message_parts = sizeof($message_parts);
+
+        $week_number = null;
+
+        if($size_message_parts === 2 && is_numeric($message_parts[1])){
+            $week_number = $message_parts[1];
+        }elseif ($size_message_parts != 1) {
+            throw new \Exception("Bad parameters in request", 1);
+        }
+
+        return $week_number;
     }
 }
