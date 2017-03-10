@@ -25,7 +25,11 @@ class ResultsCommand extends UserCommand
         return Request::sendMessage($data);       // Send message!
     }
 
-    private function getResults($week)
+    /**
+     * Retrieves the results for a given week.
+     * @param $week int
+     */
+    private function getResults($week = null)
     {
         $week_where = !is_null($week) ? "WHERE lr.week = $week" : "";
 
@@ -51,6 +55,11 @@ class ResultsCommand extends UserCommand
         return $results;
     }
 
+    /**
+     * Prepares a string with the data to send to the chat
+     * @param $lcs_results_array Array with the information retrieve from
+     * getResults()
+     */
     private function formatMessage($lcs_results_array)
     {
         if(empty($lcs_results_array)) return "No available data";
@@ -70,7 +79,9 @@ class ResultsCommand extends UserCommand
         ksort($formatted_array);
 
         foreach ($formatted_array as $week => $matches) {
+
             $message .= "WEEK $week\n------------\n";
+
             foreach ($matches as $match) {
                 $team_blue = ucwords($match["team_blue"], " ");
                 $team_red = ucwords($match["team_red"], " ");
@@ -90,6 +101,10 @@ class ResultsCommand extends UserCommand
         return $message;
     }
 
+    /**
+     * Gets the week number from the user message
+     * @param $telegram_message_object telegram api message object
+     */
     private function getWeekFromMessage($telegram_message_object)
     {
 
