@@ -1,0 +1,13 @@
+{
+    "name": "edgarshurtado/lcs-bot",
+    "type": "project",
+    "require": {
+        "longman/telegram-bot": "^0.39.0"
+    },
+    "authors": [
+        {
+            "name": "Edgar S. Hurtado",
+            "email": "edsanhu@gmail.com"
+        }
+    ]
+}

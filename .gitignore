@@ -1,3 +1,6 @@
-page.html
+parse-script/page.html
 .phpintel/
-simple_html_dom.php
+parse-script/simple_html_dom.php
+.phpcomplete_extended/
+/vendor/
+config.php
